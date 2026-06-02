@@ -1010,7 +1010,7 @@ import qrcode
 import matplotlib.pyplot as plt
 
 # 1. Define the data you want to embed
-data = "https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing"
+data = "https://girban-me.github.io/Assignment/"
 
 # 2. Configure the QR code properties
 qr = qrcode.QRCode(
@@ -1032,6 +1032,8 @@ plt.axis("off")  # Hide the axis ticks and grid lines
 plt.show()
 
 ```
+
+Link: [Presentation](https://girban-me.github.io/Assignment/)
 
 :::
 ::::

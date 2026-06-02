@@ -247,7 +247,7 @@
 | Dept. of Mechanical Engineering, IIT Guwahati | | -->
 </div><div class="column" style="width:40%;">
 <h3 id="code-to-follow">Code to follow:</h3>
-<div id="41d246d1" class="cell" data-execution_count="1">
+<div id="7dbf3144" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -354,7 +354,7 @@
 <p>The 8-puzzle is a 3×3 state space. The blank tile is 0, and legal operators move that blank around the board.</p>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="cf20a935" class="cell" data-execution_count="2">
+<div id="d3f0d502" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a></a>S_state <span class="op">=</span> [</span>
 <span id="cb2-2"><a></a>    [<span class="dv">7</span>, <span class="dv">2</span>, <span class="dv">4</span>],</span>
 <span id="cb2-3"><a></a>    [<span class="dv">5</span>, <span class="dv">0</span>, <span class="dv">6</span>],</span>
@@ -381,7 +381,7 @@
 <span id="cb2-24"><a></a>        <span class="bu">print</span>(<span class="st">"+---+---+---+"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
-<div id="6fef1b2e" class="cell" data-execution_count="3">
+<div id="8fbd0c6c" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-stdout">
 <pre><code>Starting Board:
 +---+---+---+
@@ -412,7 +412,7 @@ Goal Board:
 <p>Before running A*, the instance is checked for solvability using the parity of inversions.</p>
 <div class="columns">
 <div class="column" style="width:58%;">
-<div id="8eccf4ab" class="cell" data-execution_count="4">
+<div id="f73fcc68" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a></a><span class="kw">def</span> count_inversions(state):</span>
 <span id="cb4-2"><a></a>    flat_list <span class="op">=</span> []</span>
 <span id="cb4-3"><a></a>    <span class="co"># Flatten 2D to 1D list, ignoring the blank (0)</span></span>
@@ -438,7 +438,7 @@ Goal Board:
 <span id="cb4-23"><a></a>    <span class="cf">else</span>:</span>
 <span id="cb4-24"><a></a>        <span class="cf">return</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="6df0ccbb" class="cell" data-execution_count="5">
+<div id="97538610" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a></a><span class="cf">if</span> is_solvable(S_state):</span>
 <span id="cb5-2"><a></a>    <span class="bu">print</span>(<span class="st">"puzzle: Solvable."</span>)</span>
 <span id="cb5-3"><a></a><span class="cf">else</span>:</span>
@@ -511,7 +511,7 @@ puzzle: Solvable.</code></pre>
 <h2>Legal moves</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="bd123180" class="cell" data-execution_count="6">
+<div id="010764be" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="kw">def</span> check_movement(state):</span>
 <span id="cb7-2"><a></a>    blank_row <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
 <span id="cb7-3"><a></a>    blank_col <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
@@ -546,7 +546,7 @@ puzzle: Solvable.</code></pre>
 <li>4: DOWN</li>
 </ul>
 <p>if the boundary allows it.</p>
-<div id="a19cbda1" class="cell" data-execution_count="7">
+<div id="c7ad6e64" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-stdout">
 <pre><code>Test Board:
 +---+---+---+
@@ -568,7 +568,7 @@ Movement mapping [RIGHT, UP, LEFT, DOWN]: [1, 0, 0, 4]</code></pre>
 <h2>State transitions</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="b9fd69d0" class="cell" data-execution_count="8">
+<div id="12341555" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="kw">def</span> change_state(state, <span class="bu">dir</span>):</span>
 <span id="cb9-2"><a></a>    blank_row <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
 <span id="cb9-3"><a></a>    blank_col <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
@@ -601,7 +601,7 @@ Movement mapping [RIGHT, UP, LEFT, DOWN]: [1, 0, 0, 4]</code></pre>
 </div>
 </div><div class="column" style="width:50%;">
 <p>The blank tile can move right, up, left, or down if the boundary allows it.</p>
-<div id="7bd23e02" class="cell" data-execution_count="9">
+<div id="6c29e781" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-stdout">
 <pre><code>Original Board:
 +---+---+---+
@@ -637,7 +637,7 @@ Moving DOWN:
 <h2>Heuristic Functions</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div id="2c7ee50b" class="cell" data-execution_count="10">
+<div id="330831eb" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a></a><span class="kw">def</span> h_misplaced(state, g_state):</span>
@@ -736,7 +736,7 @@ Moving DOWN:
 </div>
 </div>
 </div>
-<div id="a858fa9a" class="cell" data-execution_count="11">
+<div id="5712c988" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-stdout">
 <pre><code>Misplaced Tiles Score: 8
 Manhattan Distance Score: 18</code></pre>
@@ -772,7 +772,7 @@ Manhattan Distance Score: 18</code></pre>
 <span id="cb14-22"><a></a>        <span class="va">self</span>.f_cost <span class="op">=</span> g_cost <span class="op">+</span> h_cost</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div><div class="column" style="width:50%;">
 <p>The blank tile can move right, up, left, or down if the boundary allows it.</p>
-<div id="bdfdf33f" class="cell" data-execution_count="13">
+<div id="03981f95" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a></a>root <span class="op">=</span> Node(</span>
 <span id="cb15-2"><a></a>    state<span class="op">=</span>S_state,</span>
 <span id="cb15-3"><a></a>    parent<span class="op">=</span><span class="va">None</span>,</span>
@@ -796,7 +796,7 @@ Manhattan Distance Score: 18</code></pre>
 <h2>The A* Algorithm</h2>
 <div class="columns">
 <div class="column" style="width:40%;">
-<div id="7cb73fdb" class="cell" data-execution_count="14">
+<div id="f3ce4226" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a></a><span class="im">import</span> heapq</span>
@@ -968,7 +968,7 @@ Manhattan Distance Score: 18</code></pre>
 </section>
 <section id="results-and-output" class="slide level2">
 <h2>Results and Output</h2>
-<div id="06d728ae" class="cell columns column-output-location" data-execution_count="15">
+<div id="e712e7fd" class="cell columns column-output-location" data-execution_count="15">
 <div class="column">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a></a><span class="kw">def</span> reconstruct_path(goal_node):</span>
 <span id="cb19-2"><a></a>    path <span class="op">=</span> []</span>
@@ -999,7 +999,7 @@ Number of moves: 26</code></pre>
 </section>
 <section id="solution-path" class="slide level2">
 <h2>Solution Path</h2>
-<div id="0b6e7d08" class="cell columns column-output-location" data-execution_count="16">
+<div id="f24c2228" class="cell columns column-output-location" data-execution_count="16">
 <div class="column">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a></a>direction_names <span class="op">=</span> [<span class="st">"RIGHT"</span>, <span class="st">"UP"</span>, <span class="st">"LEFT"</span>, <span class="st">"DOWN"</span>]</span>
 <span id="cb21-2"><a></a></span>
@@ -1261,7 +1261,7 @@ Number of moves: 26</code></pre>
 </section>
 <section id="tree-structure" class="slide level2">
 <h2>Tree Structure</h2>
-<div id="26f1fdf5" class="cell" data-execution_count="17">
+<div id="ae8cd694" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a></a><span class="kw">def</span> print_tree(node, prefix<span class="op">=</span><span class="st">""</span>, is_last<span class="op">=</span><span class="va">True</span>):</span>
@@ -3707,7 +3707,7 @@ Number of moves: 26</code></pre>
 <div class="columns">
 <div class="column" style="width:35%;">
 <h4 id="code-to-follow-1">Code to follow:</h4>
-<div id="262cbfcf" class="cell" data-execution_count="18">
+<div id="38ab96ad" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -3746,7 +3746,7 @@ Number of moves: 26</code></pre>
 <p><a href="../index.html">🏠 Home</a></p>
 </div><div class="column" style="width:35%;">
 <h4 id="presentation-link">Presentation Link</h4>
-<div id="7fa0e6c1" class="cell" data-execution_count="19">
+<div id="8bf052c5" class="cell" data-execution_count="19">
 <div class="cell-output cell-output-display">
 <div>
 <figure>
@@ -3755,6 +3755,7 @@ Number of moves: 26</code></pre>
 </div>
 </div>
 </div>
+<p>Link: <a href="https://girban-me.github.io/Assignment/">Presentation</a></p>
 </div></div>
 
 
