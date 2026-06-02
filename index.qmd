@@ -1,0 +1,48 @@
+---
+title: "CEEE Assignments for Introduction to AI"
+---
+
+The following are the links to Assignment:
+
+## Assignment 1: 8-puzzle problem
+
+- [Assignment 1 Presentation](Assignment1/assignment1_presentation.qmd)
+- [Assignment 1 Code](https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing)
+
+## Assignment 2: Tic-Tac-Toe game
+
+- [Assignment 2 Presentation](Assignment2/assignment2_presentation.qmd)
+- [Assignment 2 Code](https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing)
+
+## GitHub Repository
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(10, 10))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+Link : [GitHub Repository]()

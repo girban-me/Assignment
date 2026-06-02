@@ -1,0 +1,18 @@
+---
+title: "About"
+---
+
+**Presented by:**
+
+* **Girban Vachyas**
+  * 📧 Email: **girban@iitg.ac.in**
+  * 📱 Phone: **+91 78966 73615**
+* **Hare Shankar Kumhar**
+  * 📧 Email: **harek@iitg.ac.in**
+  * 📱 Phone: **+91 99553 18876**
+
+**Supervised by:**
+
+* **Prof. Shyamanta M. Hazarika**
+  * 🏢 Dept. of Mechanical Engineering, IIT Guwahati
+  * 📧 Email: **s.m.hazarika@iitg.ac.in**

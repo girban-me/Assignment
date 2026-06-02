@@ -1,0 +1,1057 @@
+---
+title: "Assignment 2: Minimax and Alpha-Beta Pruning"
+subtitle: "CEEE: Introduction to Artificial Intelligence"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    transition: slide
+    smaller: true
+    code-overflow: scroll
+    fontsize: 42px
+    width: 1920
+    height: 1080
+    code-block-height: 780px
+jupyter: python3
+---
+
+
+## Presented By
+
+:::: {.columns}
+::: {.column width="60%"}
+
+**Presented by:**
+
+* **Girban Vachyas**
+  * 📧 Email: **girban@iitg.ac.in**
+  * 📱 Phone: **+91 78966 73615**
+* **Hare Shankar Kumhar**
+  * 📧 Email: **harek@iitg.ac.in**
+  * 📱 Phone: **+91 99553 18876**
+
+**Supervised by:**
+
+* **Prof. Shyamanta M. Hazarika**
+  * 🏢 Dept. of Mechanical Engineering, IIT Guwahati
+  * 📧 Email: **s.m.hazarika@iitg.ac.in**
+
+
+<!-- **Presented by**
+
+| | | |
+|---|---|---|
+| **Girban Vachyas** | girban@iitg.ac.in | +91-78966-73615 |
+| **Hare Shankar Kumhar** | harek@iitg.ac.in | +91-99553-18876 |
+
+<br>
+
+**Supervised by**
+
+| | |
+|---|---|
+| **Prof. Shyamanta M. Hazarika** | smh@iitg.ac.in |
+| Dept. of Mechanical Engineering, IIT Guwahati | | -->
+
+:::
+::: {.column width="40%"}
+
+
+### Code to follow:
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(10, 10))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+Code: [Assignment 2 Code](https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing)
+
+:::
+::::
+
+
+
+<style>
+.reveal div.cell-output-stdout pre code{  /* height: 850px !important; */
+
+  max-height: 850px !important;
+  /* height: 850px !important; */
+  overflow-y: scroll !important;
+  overflow-x: scroll !important;
+  font-size: 1em !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+</style>
+
+<style>
+/* Target the exact classes Quarto uses for Python code and output.
+  Using 'scroll' forces the scrollbar to be visible even if not overflowing.
+*/
+.reveal div.sourceCode pre code{
+  max-height: 750px !important;
+  overflow-y: scroll !important; 
+  overflow-x: scroll !important; 
+}
+</style>
+
+
+---
+
+## Problem Statement
+
+*Building an intelligent Tic-Tac-Toe agent.*
+
+:::: {.columns}
+::: {.column width="60%"}
+
+
+**Main Objective:** Develop an intelligent agent capable of playing a two-player, zero-sum game of 3×3 Tic-Tac-Toe against a human opponent.
+
+### Core Tasks
+* **Q1: The Minimax Algorithm** Implement a standard adversarial search for the agent. It must run to an arbitrary depth, utilize a static evaluation function to score nodes, and accurately track the number of game states explored.
+* **Q2: Alpha-Beta Pruning Optimization** Upgrade the base Minimax agent by implementing Alpha-Beta pruning to navigate the search tree more efficiently. 
+
+
+:::
+::: {.column width="40%"}
+
+
+```{=html}
+<style>
+  .tictactoe-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 20px;}
+  .tictactoe-board { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 5px; }
+  .ttt-cell { width: 100px; height: 100px; background: #2c3e50; color: white; font-size: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); transition: background 0.2s;}
+  .ttt-cell:hover { background: #34495e; }
+  .ttt-cell.taken { cursor: default; }
+  .ttt-status { margin-top: 15px; font-size: 24px; font-weight: bold; font-family: sans-serif; }
+  .reset-btn { margin-top: 15px; padding: 10px 20px; font-size: 18px; cursor: pointer; border: none; border-radius: 5px; background: #e74c3c; color: white; }
+  .reset-btn:hover { background: #c0392b; }
+</style>
+
+<div class="tictactoe-wrapper">
+  <div class="tictactoe-board" id="ttt-board"></div>
+  <div class="ttt-status" id="ttt-status">Player X's Turn</div>
+  <button class="reset-btn" onclick="resetTTT()">Reset Board</button>
+</div>
+
+<script>
+  let tttState = ["", "", "", "", "", "", "", "", ""];
+  let currentPlayer = "X";
+  let gameActive = true;
+
+  const winningConditions = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6]             // Diagonals
+  ];
+
+  function renderTTT() {
+    const board = document.getElementById('ttt-board');
+    board.innerHTML = '';
+    tttState.forEach((val, index) => {
+      let div = document.createElement('div');
+      div.className = val === "" ? 'ttt-cell' : 'ttt-cell taken';
+      div.innerText = val;
+      if(val === "" && gameActive) div.onclick = () => makeTTTMove(index);
+      board.appendChild(div);
+    });
+  }
+
+  function makeTTTMove(index) {
+    if (tttState[index] !== "" || !gameActive) return;
+    
+    tttState[index] = currentPlayer;
+    checkTTTWin();
+    
+    if(gameActive) {
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      document.getElementById('ttt-status').innerText = `Player ${currentPlayer}'s Turn`;
+    }
+    renderTTT();
+  }
+
+  function checkTTTWin() {
+    let roundWon = false;
+    for (let i = 0; i <= 7; i++) {
+      const winCondition = winningConditions[i];
+      let a = tttState[winCondition[0]];
+      let b = tttState[winCondition[1]];
+      let c = tttState[winCondition[2]];
+      if (a === '' || b === '' || c === '') continue;
+      if (a === b && b === c) {
+        roundWon = true;
+        break;
+      }
+    }
+
+    if (roundWon) {
+      document.getElementById('ttt-status').innerText = `Player ${currentPlayer} Wins!`;
+      gameActive = false;
+      return;
+    }
+
+    let roundDraw = !tttState.includes("");
+    if (roundDraw) {
+      document.getElementById('ttt-status').innerText = 'Game Ended in a Draw!';
+      gameActive = false;
+      return;
+    }
+  }
+
+  function resetTTT() {
+    tttState = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    gameActive = true;
+    document.getElementById('ttt-status').innerText = `Player X's Turn`;
+    renderTTT();
+  }
+
+  document.addEventListener("DOMContentLoaded", renderTTT);
+</script>
+```
+
+:::
+::::
+
+---
+
+## Board representation
+
+Mapping the environment: Utilizing a 2D array to track player positions and open spaces.
+
+:::: {.columns}
+::: {.column width="52%"}
+
+```python
+
+def print_board(board):
+    """Print the 3x3 board in a readable format."""
+    print()
+    for i, row in enumerate(board):
+        print(" " + " | ".join(row))
+        if i < 2:
+            print(" " + "-" * 9)
+    print()
+
+# A sample mid-game board: X has center, O has top-right and bottom-right
+sample_board = [
+    ["X", "O", "X"],
+    ["O", "X", " "],
+    [" ", " ", "O"]
+]
+
+print("Sample board:")
+print_board(sample_board)
+```
+
+:::
+
+::: {.column width="48%"}
+
+```{python}
+
+def print_board(board):
+    """Print the 3x3 board in a readable format."""
+    print()
+    for i, row in enumerate(board):
+        print(" " + " | ".join(row))
+        if i < 2:
+            print(" " + "-" * 9)
+    print()
+
+# A sample mid-game board: X has center, O has top-right and bottom-right
+sample_board = [
+    ["X", "O", "X"],
+    ["O", "X", " "],
+    [" ", " ", "O"]
+]
+
+empty_board = [
+    [" ", " ", " "],
+    [" ", " ", " "],
+    [" ", " ", " "]
+]
+
+print("Sample board:")
+print_board(sample_board)
+```
+:::
+::::
+
+---
+
+## Game-state checking
+
+*Detecting terminal and non-terminal states.*
+
+:::: {.columns}
+::: {.column width="40%"}
+
+```python
+def check_game_state(board):
+    # ----- Check rows -----
+    for row in board:
+        if row[0] != " " and row[0] == row[1] == row[2]:
+            return row[0]
+
+    # ----- Check columns -----
+    for col in range(3):
+        if (
+            board[0][col] != " "
+            and board[0][col] == board[1][col] == board[2][col]
+        ):
+            return board[0][col]
+
+    # ----- Main diagonal -----
+    if (
+        board[0][0] != " "
+        and board[0][0] == board[1][1] == board[2][2]
+    ):
+        return board[0][0]
+
+    # ----- Anti-diagonal -----
+    if (
+        board[0][2] != " "
+        and board[0][2] == board[1][1] == board[2][0]
+    ):
+        return board[0][2]
+
+    # ----- Draw / Unfinished -----
+    for row in board:
+        for cell in row:
+            if cell == " ":
+                return "_"
+    return "D"
+```
+
+:::
+
+::: {.column width="30%"}
+
+```{python}
+#| output-location: column
+
+def check_game_state(board):
+    """
+    Returns:
+    "X" -> X wins
+    "O" -> O wins
+    "D" -> Draw
+    "_" -> Game not finished
+    """
+    # ----- Check rows -----
+    for row in board:
+        if row[0] != " " and row[0] == row[1] == row[2]:
+            return row[0]
+
+    # ----- Check columns -----
+    for col in range(3):
+        if (
+            board[0][col] != " "
+            and board[0][col] == board[1][col] == board[2][col]
+        ):
+            return board[0][col]
+
+    # ----- Main diagonal -----
+    if (
+        board[0][0] != " "
+        and board[0][0] == board[1][1] == board[2][2]
+    ):
+        return board[0][0]
+
+    # ----- Anti-diagonal -----
+    if (
+        board[0][2] != " "
+        and board[0][2] == board[1][1] == board[2][0]
+    ):
+        return board[0][2]
+
+    # ----- Draw / Unfinished -----
+    for row in board:
+        for cell in row:
+            if cell == " ":
+                return "_"
+    return "D"
+
+test1 = [
+    ["X","X","X"],
+    ["O"," ","O"],
+    [" "," "," "]
+]
+print_board(test1)
+print("State: " + check_game_state(test1))
+# X
+
+test4 = [
+    ["O","O","O"],
+    ["X"," ","X"],
+    [" "," "," "]
+]
+print_board(test4)
+print("State: " + check_game_state(test4))
+# X
+
+test2 = [
+    ["X","O","X"],
+    ["X","O","O"],
+    ["O","X","X"]
+]
+print_board(test2) 
+print("State: " + check_game_state(test2))
+# D
+
+test3 = [
+    ["X","O","X"],
+    ["X","O"," "],
+    [" "," "," "]
+]
+print_board(test3)
+print("State: " + check_game_state(test3))
+# _
+```
+
+:::
+::: {.column width="30%"}
+
+**States:**
+
+- X -> X wins
+- O -> O wins
+- D -> Draw
+- _ -> Game not finished
+
+:::
+::::
+
+---
+
+## Static evaluation
+
+*Estimating board strength numerically.*
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+#| code-fold: true
+
+def static_eval(board):
+    """
+    Score the board from X's (Max's) perspective.
+    Returns:
+    +inf → X has won
+    -inf → O has won
+    score → (lines open for X) minus (lines open for O)
+    """
+    state = check_game_state(board)
+    if state == "X":
+        return float("inf")
+    if state == "O":
+        return float("-inf")
+    if state == "D":
+        return 0
+
+    lines = [
+        # --- rows ---
+        [board[0][0], board[0][1], board[0][2]],
+        [board[1][0], board[1][1], board[1][2]],
+        [board[2][0], board[2][1], board[2][2]],
+        # --- columns ---
+        [board[0][0], board[1][0], board[2][0]],
+        [board[0][1], board[1][1], board[2][1]],
+        [board[0][2], board[1][2], board[2][2]],
+        # --- diagonals ---
+        [board[0][0], board[1][1], board[2][2]],
+        [board[0][2], board[1][1], board[2][0]],
+    ]
+
+    x_open = sum(1 for line in lines if "O" not in line)
+    o_open = sum(1 for line in lines if "X" not in line)
+    return (x_open - o_open)
+
+```
+
+```python
+def static_eval(board):
+    """
+    Score the board from X's (Max's) perspective.
+    Returns:
+    +inf → X has won
+    -inf → O has won
+    score → (lines open for X) minus (lines open for O)
+    """
+
+    # CODE HARE
+    
+    return value
+
+```
+
+<!-- ::: {.callout-important}
+## Concept
+
+A heuristic/evaluation function gives the board a numeric score so the search can choose the most promising move without exploring every possibility.
+::: -->
+
+```python
+x_center = [
+    [" ", " ", " "],
+    [" ", "X", " "],
+    [" ", " ", " "]
+]
+
+x_winning = [
+    ["X", "X", "X"],
+    ["O", "O", " "],
+    [" ", " ", " "]
+]
+
+empty_board = [
+    [" ", " ", " "],
+    [" ", " ", " "],
+    [" ", " ", " "]
+]
+
+print("Score for empty board: ", static_eval(empty_board))
+print("Score with X in center: ", static_eval(x_center))
+print("Score when X has won: ", static_eval(x_winning))
+```
+
+
+
+:::
+::: {.column width="50%"}
+
+```{mermaid}
+flowchart TD
+    A[Input: Board State] --> B{Check Game State}
+    
+    B -- X Wins --> C[Return +∞]
+    B -- O Wins --> D[Return -∞]
+    B -- Draw --> E[Return 0]
+    
+    B -- Game Ongoing --> F[Analyze 8 Winning Lines]
+    
+    F --> G[Count lines with NO 'O']
+    G --> H(x_open)
+    
+    F --> I[Count lines with NO 'X']
+    I --> J(o_open)
+    
+    H --> K[Score = x_open - o_open]
+    J --> K
+    
+    K --> L[Return Score]
+
+    classDef terminal fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    class C,D,E,L terminal;
+```
+
+```{python}
+
+x_center = [
+    [" ", " ", " "],
+    [" ", "X", " "],
+    [" ", " ", " "]
+]
+
+x_winning = [
+    ["X", "X", "X"],
+    ["O", "O", " "],
+    [" ", " ", " "]
+]
+
+empty_board = [
+    [" ", " ", " "],
+    [" ", " ", " "],
+    [" ", " ", " "]
+]
+
+print("Score for empty board: ", static_eval(empty_board))
+print("Score with X in center: ", static_eval(x_center))
+print("Score when X has won: ", static_eval(x_winning))
+```
+
+
+:::
+::::
+
+---
+
+## Legal moves and state transition
+
+*Generating valid successor states.*
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+def get_available_moves(board):
+    """Return a list of empty positions as (row, col)."""
+    moves = []
+    for r in range(3):
+        for c in range(3):
+            if board[r][c] == " ":
+                moves.append([r, c])
+    return moves
+
+def make_move(board, move, player):
+    """Return a new board after placing player at (row, col)."""
+    row = move[0]
+    col = move[1]
+    new_board = [row_[:] for row_ in board]
+    new_board[row][col] = player
+    return new_board
+
+```
+
+:::
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+sample_moves = get_available_moves(sample_board)
+print("Available moves: [row , col]", sample_moves)
+
+print("\n\n Board before making move at", sample_moves[1], "for X:")
+print_board(sample_board)
+
+print("\n\n Board after making move at" , sample_moves[1] ," for X:")
+print_board(make_move(sample_board, sample_moves[1], "X"))
+```
+
+
+:::
+::::
+
+
+---
+
+## Node representation
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+def board_to_key(board):
+    return "".join(cell if cell != " " else "_" for row in board for cell in row)
+
+class Node:
+    def __init__(self, board, next_player, depth=0, parent_node=None):
+        self.board = [row[:] for row in board]
+        self.key = board_to_key(board)
+        self.next_player = next_player
+        self.depth = depth
+        self.game_state = check_game_state(board)
+        self.static_eval = static_eval(board)
+        self.parent_node = parent_node
+        self.immediate_children = []
+        self.next_moves = get_available_moves(board)
+        self.score = [None, None, None, None]  # [max_score, max_move, min_score, min_move]
+        self.alpha = float("-inf")
+        self.beta = float("inf")
+
+    def expand(self):
+        next_player = "O" if self.next_player == "X" else "X"
+        for move in self.next_moves:
+            child_board = make_move(self.board, move, self.next_player)
+            child = Node(
+                board=child_board,
+                next_player=next_player,
+                depth=self.depth + 1,
+                parent_node=self
+            )
+            self.immediate_children.append(child)
+```
+
+
+```{python}
+#| echo: true
+
+root = Node(sample_board, next_player="X")
+print(root.key)
+print(root.static_eval)
+```
+
+:::
+::: {.column width="50%"}
+
+```{mermaid}
+classDiagram
+    class Node {
+        +board : current board state
+        +key : unique board identifier
+        +next_player : player to move
+        +depth : tree depth
+
+        +game_state : X/O/Draw/In-Progress
+        +static_eval : heuristic score
+
+        +parent_node : parent reference
+        +immediate_children : child nodes
+        +next_moves : available actions
+
+        +score : minimax results
+        +alpha : lower bound
+        +beta : upper bound
+
+        +expand() : generate children
+    }
+
+    Node "1" --> "*" Node : children
+    Node "*" --> "1" Node : parent
+```
+
+:::
+::::
+
+---
+
+## Minimax
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+def print_tree(node, prefix="", is_last=True):
+    level = getattr(node, "level", getattr(node, "depth", "?"))
+    if prefix == "":
+        print(node.key)
+    else:
+        connector = "└── " if is_last else "├── "
+        print(prefix + connector + "L" + str(level) + " K:" + str(node.key))
+
+    child_count = len(node.immediate_children)
+    for i, child in enumerate(node.immediate_children):
+        last_child = (i == child_count - 1)
+        if prefix == "":
+            new_prefix = "    "
+        else:
+            new_prefix = prefix + ("    " if is_last else "│   ")
+        print_tree(child, new_prefix, last_child)
+```
+
+```{python}
+#| echo: true
+#| code-fold: true
+
+def minimax(node, depth):
+    nodes_explored = 1  # count this node
+    if depth == 0 or node.game_state in ("X", "O", "D"):
+        return node.static_eval, None, nodes_explored
+
+    if not node.immediate_children:
+        node.expand()
+
+    if node.next_player == "X":
+        best_score = float("-inf")
+        best_move = None
+        for move, child in zip(node.next_moves, node.immediate_children):
+            score, _, child_count = minimax(child, depth - 1)
+            nodes_explored += child_count
+            if score > best_score:
+                best_score = score
+                best_move = move
+        return best_score, best_move, nodes_explored
+    else:
+        best_score = float("inf")
+        best_move = None
+        for move, child in zip(node.next_moves, node.immediate_children):
+            score, _, child_count = minimax(child, depth - 1)
+            nodes_explored += child_count
+            if score < best_score:
+                best_score = score
+                best_move = move
+        return best_score, best_move, nodes_explored
+
+```
+
+
+```python
+def minimax(node, depth):
+    # CODE HERE
+
+```
+
+```{mermaid}
+flowchart TD
+    A[Current Board State]
+    B{Terminal State?}
+    C[Return Score]
+    D[Generate Possible Moves]
+    E{Max Player X?}
+    F[Choose Move with Highest Score]
+    G[Choose Move with Lowest Score]
+    H[Apply Move]
+    I[Recursive Minimax]
+
+    A --> B
+    B -- Yes --> C
+    B -- No --> D
+    D --> E
+    E -- Yes --> F
+    E -- No --> G
+
+    F --> H
+    G --> H
+    H --> I
+    I --> B
+```
+
+:::
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+root = Node(sample_board, next_player="X")
+score, move, count = minimax(root, depth=3)
+print("Minimax score:", score)
+print("Best move:", move)
+print("Nodes explored:", count)
+print_tree(root)
+
+```
+
+:::
+::::
+
+---
+
+## Alpha-beta pruning
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+#| code-fold: true
+
+def alpha_beta(node, depth, alpha=float("-inf"), beta=float("inf")):
+    nodes_explored = 1  # count this node
+    node.alpha = alpha
+    node.beta = beta
+
+    if depth == 0 or node.game_state in ("X", "O", "D"):
+        return node.static_eval, None, nodes_explored
+
+    if not node.immediate_children:
+        node.expand()
+
+    if node.next_player == "X":
+        best_score = float("-inf")
+        best_move = None
+        for move, child in zip(node.next_moves, node.immediate_children):
+            score, _, child_count = alpha_beta(child, depth - 1, alpha, beta)
+            nodes_explored += child_count
+            if score > best_score:
+                best_score = score
+                best_move = move
+            alpha = max(alpha, best_score)
+            if beta <= alpha:
+                break
+        node.alpha = alpha
+        node.beta = beta
+        return best_score, best_move, nodes_explored
+    else:
+        best_score = float("inf")
+        best_move = None
+        for move, child in zip(node.next_moves, node.immediate_children):
+            score, _, child_count = alpha_beta(child, depth - 1, alpha, beta)
+            nodes_explored += child_count
+            if score < best_score:
+                best_score = score
+                best_move = move
+            beta = min(beta, best_score)
+            if beta <= alpha:
+                break
+        node.alpha = alpha
+        node.beta = beta
+        return best_score, best_move, nodes_explored
+
+```
+
+```python
+def alpha_beta(node, depth, alpha=float("-inf"), beta=float("inf")):
+    # CODE HERE
+
+```
+
+```{python}
+#| echo: true
+
+root = Node(sample_board, next_player="X")
+score, move, count = alpha_beta(root, depth=3)
+print("Alpha-beta score:", score)
+print("Best move:", move)
+print("Nodes explored:", count)
+print_tree(root)
+
+
+```
+
+
+
+
+:::
+::: {.column width="50%"}
+
+```{mermaid}
+flowchart TD
+    A[Start] --> B[Check terminal or depth 0]
+    B -->|Yes| C[Return evaluation]
+    B -->|No| D[Expand children]
+
+    D --> E{Next player?}
+
+    E -->|X| F[Maximize score]
+    F --> G[Update alpha]
+    G --> H{alpha >= beta?}
+    H -->|Yes| I[Prune]
+    H -->|No| F
+
+    E -->|O| J[Minimize score]
+    J --> K[Update beta]
+    K --> L{beta <= alpha?}
+    L -->|Yes| I
+    L -->|No| J
+
+    I --> M[Return best move]
+    C --> M
+```
+
+:::
+::::
+
+---
+
+## Thank you for your attention!
+
+:::: {.columns}
+::: {.column width="35%"}
+
+#### Code to follow:
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(8, 8))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+Code: [Assignment 2 Code](https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing)
+
+:::
+::: {.column width="30%"}
+
+\
+
+#### If you have any questions, please feel free to reach out!
+
+* **Girban Vachyas**
+  * 📧 Email: **girban@iitg.ac.in**
+  * 📱 Phone: **+91 78966 73615**
+* **Hare Shankar Kumhar**
+  * 📧 Email: **harek@iitg.ac.in**
+  * 📱 Phone: **+91 99553 18876**
+
+**Supervised by:**
+
+* **Prof. Shyamanta M. Hazarika**
+  * 🏢 Dept. of Mechanical Engineering, IIT Guwahati
+  * 📧 Email: **s.m.hazarika@iitg.ac.in**
+
+\
+
+[🏠 Home](../index.qmd)
+
+:::
+::: {.column width="35%"}
+
+#### Presentation Link
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(8, 8))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+:::
+::::
+

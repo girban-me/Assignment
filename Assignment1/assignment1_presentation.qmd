@@ -1,0 +1,1037 @@
+---
+title: "Assignment 1: Heuristic Search with the 8-Puzzle"
+subtitle: "CEEE: Introduction to Artificial Intelligence"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    transition: slide
+    smaller: true
+    code-overflow: scroll
+    fontsize: 50px
+    width: 1920
+    height: 1080
+    code-block-height: 850px
+jupyter: python3
+---
+
+## Presented By
+
+:::: {.columns}
+::: {.column width="60%"}
+
+**Presented by:**
+
+* **Girban Vachyas**
+  * 📧 Email: **girban@iitg.ac.in**
+  * 📱 Phone: **+91 78966 73615**
+* **Hare Shankar Kumhar**
+  * 📧 Email: **harek@iitg.ac.in**
+  * 📱 Phone: **+91 99553 18876**
+
+**Supervised by:**
+
+* **Prof. Shyamanta M. Hazarika**
+  * 🏢 Dept. of Mechanical Engineering, IIT Guwahati
+  * 📧 Email: **s.m.hazarika@iitg.ac.in**
+
+
+<!-- **Presented by**
+
+| | | |
+|---|---|---|
+| **Girban Vachyas** | girban@iitg.ac.in | +91-78966-73615 |
+| **Hare Shankar Kumhar** | harek@iitg.ac.in | +91-99553-18876 |
+
+<br>
+
+**Supervised by**
+
+| | |
+|---|---|
+| **Prof. Shyamanta M. Hazarika** | smh@iitg.ac.in |
+| Dept. of Mechanical Engineering, IIT Guwahati | | -->
+
+:::
+::: {.column width="40%"}
+
+
+### Code to follow:
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(10, 10))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+Code: [Assignemt 1 Code](https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing)
+
+:::
+::::
+
+<style>
+/* Target the exact classes Quarto uses for Python code and output.
+  Using 'scroll' forces the scrollbar to be visible even if not overflowing.
+*/
+.reveal div.cell-output-stdout pre code{
+  max-height: 850px !important;
+  /* height: 650px !important; */
+  overflow-y: scroll !important; 
+  overflow-x: auto; 
+  width: 100%;           /* Container needs a bounded width */ 
+  font-size: 1em !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+</style>
+
+<style>
+/* Target the exact classes Quarto uses for Python code and output.
+  Using 'scroll' forces the scrollbar to be visible even if not overflowing.
+*/
+.reveal div.sourceCode pre code{
+  max-height: 850px !important;
+  /* height: 650px !important; */
+  overflow-y: scroll !important; 
+  overflow-x: scroll !important; 
+}
+</style>
+
+
+---
+
+## Problem Statement
+
+:::: {.columns}
+::: {.column width="60%"}
+
+- Write heuristic functions on the 8-puzzle.
+- Implement A\* search with both the misplaced tile and Manhattan distance heuristics.
+
+:::
+::: {.column width="40%"}
+
+##### Interactive Puzzle
+
+```{=html}
+<style>
+  .puzzle-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 20px;}
+  .puzzle-board { display: grid; grid-template-columns: repeat(3, 80px); grid-gap: 5px; }
+  .tile { width: 80px; height: 80px; background: #0056b3; color: white; font-size: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s;}
+  .tile:hover { transform: scale(1.05); }
+  .tile.empty { background: #e9ecef; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1); cursor: default; }
+  .tile.empty:hover { transform: none; }
+</style>
+
+<div class="puzzle-wrapper">
+  <div class="puzzle-board" id="board"></div>
+</div>
+
+<script>
+  let puzzleState = [7, 2, 4, 5, 0, 6, 8, 3, 1];
+
+  function renderPuzzle() {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+    puzzleState.forEach((val, index) => {
+      let div = document.createElement('div');
+      div.className = val === 0 ? 'tile empty' : 'tile';
+      div.innerText = val === 0 ? '' : val;
+      if(val !== 0) div.onclick = () => moveTile(index);
+      board.appendChild(div);
+    });
+  }
+
+  function moveTile(index) {
+    const emptyIdx = puzzleState.indexOf(0);
+    const validMoves = [emptyIdx - 1, emptyIdx + 1, emptyIdx - 3, emptyIdx + 3];
+
+    if (validMoves.includes(index) &&
+        !(emptyIdx % 3 === 0 && index === emptyIdx - 1) &&
+        !(emptyIdx % 3 === 2 && index === emptyIdx + 1)) {
+
+      puzzleState[emptyIdx] = puzzleState[index];
+      puzzleState[index] = 0;
+      renderPuzzle();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", renderPuzzle);
+</script>
+```
+
+
+:::
+::::
+
+```
+  Start State        Goal State
+  ┌───┬───┬───┐      ┌───┬───┬───┐
+  │ 7 │ 2 │ 4 │      │   │ 1 │ 2 │
+  ├───┼───┼───┤      ├───┼───┼───┤
+  │ 5 │   │ 6 │  →   │ 3 │ 4 │ 5 │
+  ├───┼───┼───┤      ├───┼───┼───┤
+  │ 8 │ 3 │ 1 │      │ 6 │ 7 │ 8 │
+  └───┴───┴───┘      └───┴───┴───┘
+```
+
+---
+
+## Board Representation
+
+The 8-puzzle is a 3×3 state space. The blank tile is 0, and legal operators move that blank around the board.
+
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+S_state = [
+    [7, 2, 4],
+    [5, 0, 6],
+    [8, 3, 1]
+]
+G_state = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8]
+]
+def display_board(state):
+    print("+---+---+---+")
+    for row in range(3):
+        row_tiles = []
+        for col in range(3):
+            tile = state[row][col] 
+            
+            if tile == 0:
+                row_tiles.append("   ")
+            else:
+                row_tiles.append(f" {tile} ")
+                
+        print("|" + "|".join(row_tiles) + "|")
+        print("+---+---+---+")
+```
+
+:::
+::: {.column width="50%"}
+
+
+```{python}
+print("Starting Board:")
+display_board(S_state)
+print("\n    | A*")
+print("    | ")
+print("    V")
+print("Goal Board:")
+display_board(G_state)
+```
+
+
+
+:::
+::::
+
+---
+
+## Solvability by inversion parity
+
+Before running A*, the instance is checked for solvability using the parity of inversions.
+
+:::: {.columns}
+::: {.column width="58%"}
+
+```{python}
+#| echo: true
+
+def count_inversions(state):
+    flat_list = []
+    # Flatten 2D to 1D list, ignoring the blank (0)
+    for row in range(3):
+        for col in range(3):
+            tile = state[row][col]
+            if tile != 0:
+                flat_list.append(tile)
+
+    inversions = 0
+    total_tiles = len(flat_list)  # Should be 8 (since we removed 0)
+    for i in range(total_tiles):
+        for j in range(i + 1, total_tiles):
+            if flat_list[i] > flat_list[j]:
+                inversions += 1
+    return inversions
+
+def is_solvable(state):
+    total_inversions = count_inversions(state)
+    print(f"Total inversions found: {total_inversions}")
+    if total_inversions % 2 == 0:
+        return True
+    else:
+        return False
+
+```
+
+```{python}
+#| echo: true
+
+if is_solvable(S_state):
+    print("puzzle: Solvable.")
+else:
+    print("puzzle: NOT Solvable.")
+```
+
+
+:::
+::: {.column width="42%"}
+
+::: {.callout-note collapse="true"}
+## Walk-through example
+
+Linear representation of `(7, 2, 4, 5, 6, 8, 3, 1)` (blank at index 4 skipped):
+
+| Tile | Inversions with later tiles |
+|------|----------------------------|
+| 7    | 2, 4, 5, 6, 3, 1 → 6 inversions |
+| 2    | 1 → 1 inversion |
+| 4    | 3, 1 → 2 inversions |
+| 5    | 3, 1 → 2 inversions |
+| 6    | 3, 1 → 2 inversions |
+| 8    | 3, 1 → 2 inversions |
+| 3    | 1 → 1 inversion |
+| 1    | — → 0 inversions |
+
+**Total = 16 inversions → Even → Solvable ✓**
+:::
+
+:::
+::::
+
+## Legal moves
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+def check_movement(state):
+    blank_row = -1
+    blank_col = -1
+    
+    for row in range(3):
+        for col in range(3):
+            if state[row][col] == 0:
+                blank_row = row
+                blank_col = col
+                
+    # RIGHT: The column must be less than 2 to move right
+    can_move_right = 1 if blank_col < 2 else 0
+    
+    # UP: The row must be greater than 0 to move up
+    can_move_up = 2 if blank_row > 0 else 0
+    
+    # LEFT: The column must be greater than 0 to move left
+    can_move_left = 3 if blank_col > 0 else 0
+    
+    # DOWN: The row must be less than 2 to move down
+    can_move_down = 4 if blank_row < 2 else 0
+    
+    # Return the list in the exact order requested: [RIGHT, UP, LEFT, DOWN]
+    return [can_move_right, can_move_up, can_move_left, can_move_down]
+```
+
+:::
+::: {.column width="50%"}
+
+
+The blank tile can move:
+
+- 1: RIGHT
+- 2: UP
+- 3: LEFT
+- 4: DOWN
+
+if the boundary allows it.
+```{python}
+
+test_state = [
+    [0, 2, 4],
+    [5, 7, 6],
+    [8, 3, 1]
+]
+
+print("Test Board:")
+display_board(test_state)
+
+# Check movements
+moves = check_movement(test_state)
+print("\n Moves: ", moves)
+print(f"\nMovement mapping [RIGHT, UP, LEFT, DOWN]: {moves}")
+```
+
+:::
+::::
+
+## State transitions
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| echo: true
+
+def change_state(state, dir):
+    blank_row = -1
+    blank_col = -1
+    
+    for row in range(3):
+        for col in range(3):
+            if state[row][col] == 0:
+                blank_row = row
+                blank_col = col
+                
+    new_row = blank_row
+    new_col = blank_col
+    
+    if dir == 1:    # RIGHT
+        new_col += 1
+    elif dir == 2:  # UP
+        new_row -= 1
+    elif dir == 3:  # LEFT
+        new_col -= 1
+    elif dir == 4:  # DOWN
+        new_row += 1
+        
+    new_state = [list(r) for r in state]
+    
+    number_to_move = new_state[new_row][new_col]
+    new_state[blank_row][blank_col] = number_to_move
+    new_state[new_row][new_col] = 0
+    
+    return new_state
+```
+
+:::
+
+::: {.column width="50%"}
+
+
+The blank tile can move right, up, left, or down if the boundary allows it.
+```{python}
+
+test_state = [
+    [0, 2, 4],
+    [5, 7, 6],
+    [8, 3, 1]
+]
+
+print("Original Board:")
+display_board(test_state)
+
+direction_names = ["RIGHT", "UP", "LEFT", "DOWN"]
+
+# Loop through our moves list and only change state if the move is a 1
+for dir_index in moves:
+    # print(dir_index)
+    if dir_index != 0:
+        print(f"\nMoving {direction_names[dir_index-1]}:")
+        new_board = change_state(test_state, dir_index)
+        display_board(new_board)
+```
+
+:::
+::::
+
+## Heuristic Functions
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+#| code-fold: true
+#| echo: true
+
+def h_misplaced(state, g_state):
+    """
+    Counts how many tiles are NOT in their correct goal position.
+    We ignore the blank tile (0).
+    """
+    wrong_places = 0
+    
+    # Check every single square on the 3x3 grid
+    for row in range(3):
+        for col in range(3):
+            current_tile = state[row][col]
+            goal_tile = g_state[row][col]
+            
+            # We only care about actual numbered tiles, so skip the 0
+            if current_tile != 0:
+                # If the tile doesn't match the goal board, count it as misplaced
+                if current_tile != goal_tile:
+                    wrong_places += 1
+                    
+    return wrong_places
+
+def h_manhattan(state, g_state):
+    """
+    Calculates the total 'walking distance' for all tiles to reach their goal.
+    Distance = absolute difference in rows + absolute difference in columns.
+    """
+    total_distance = 0
+    
+    # Step 1: Look at every tile on our current board
+    for row in range(3):
+        for col in range(3):
+            current_tile = state[row][col]
+            
+            # Skip the blank space (0)
+            if current_tile == 0:
+                continue
+                
+            # Step 2: Now, go find where this specific tile lives on the goal board
+            target_row = -1
+            target_col = -1
+            
+            for g_row in range(3):
+                for g_col in range(3):
+                    if g_state[g_row][g_col] == current_tile:
+                        target_row = g_row
+                        target_col = g_col
+            
+            # Step 3: Calculate the distance
+            # The abs() function gives the absolute value (turns negatives into positives)
+            # because you can't walk "negative" 2 steps!
+            row_distance = abs(row - target_row)
+            col_distance = abs(col - target_col)
+            
+            # Add this tile's distance to our total
+            total_distance += (row_distance + col_distance)
+            
+    return total_distance
+
+
+```
+
+```python
+
+def h_misplaced(state, g_state):
+    """
+    Counts how many tiles are NOT in their correct goal position.
+    We ignore the blank tile (0).
+    """
+    wrong_places = 0
+    
+    # CODE HERE
+                    
+    return wrong_places
+
+def h_manhattan(state, g_state):
+    """
+    Calculates the total 'walking distance' for all tiles to reach their goal.
+    Distance = absolute difference in rows + absolute difference in columns.
+    """
+    total_distance = 0
+    
+    # CODE HERE
+            
+    return total_distance
+```
+
+:::
+
+::: {.column width="50%"}
+
+
+::: {.callout-important}
+## Concept
+
+A heuristic `h(n)` estimates how far state *n* is from the goal **without** doing a full search.  
+
+An heuristic guarantees A\* finds the **shortest** solution.
+
+:::
+
+```{python}
+
+misplaced_score = h_misplaced(S_state, G_state)
+print(f"Misplaced Tiles Score: {misplaced_score}")
+
+manhattan_score = h_manhattan(S_state, G_state)
+print(f"Manhattan Distance Score: {manhattan_score}")
+```
+
+:::
+::::
+
+---
+
+## Node representation
+
+:::: {.columns}
+::: {.column width="50%"}
+
+```{python}
+class Node:
+    def __init__(self, state, parent=None, prev_movement=None, movements=None, level=0, g_cost=0, h_cost=0):
+        self.state = state
+        self.parent = parent
+        self.immediate_children = []
+        self.prev_movement = prev_movement
+        self.movements = movements if movements is not None else []
+        self.level = level
+        self.g_cost = g_cost
+        self.h_cost = h_cost
+        self.f_cost = self.g_cost + self.h_cost
+        self.key = self.state_to_key(state)
+
+    @staticmethod
+    def state_to_key(state):
+        # Example: [[7,2,4],[5,0,6],[8,3,1]] -> 724506831
+        return int("".join(str(tile) for row in state for tile in row))
+
+    def update_costs(self, g_cost, h_cost):
+        self.g_cost = g_cost
+        self.h_cost = h_cost
+        self.f_cost = g_cost + h_cost
+
+    def __lt__(self, other):
+        # Needed for heapq tie-breaking
+        return self.f_cost < other.f_cost
+```
+
+```python
+class Node:
+    def __init__(self, state, parent=None, prev_movement=None, movements=None, level=0, g_cost=0, h_cost=0):
+        self.state = state
+        self.parent = parent
+        self.immediate_children = []
+        self.prev_movement = prev_movement
+        self.movements = movements if movements is not None else []
+        self.level = level
+        self.g_cost = g_cost
+        self.h_cost = h_cost
+        self.f_cost = self.g_cost + self.h_cost
+        self.key = self.state_to_key(state)
+
+    @staticmethod
+    def state_to_key(state):
+        # Example: [[7,2,4],[5,0,6],[8,3,1]] -> 724506831
+        return int("".join(str(tile) for row in state for tile in row))
+
+    def update_costs(self, g_cost, h_cost):
+        self.g_cost = g_cost
+        self.h_cost = h_cost
+        self.f_cost = g_cost + h_cost
+
+```
+
+:::
+
+::: {.column width="50%"}
+
+
+The blank tile can move right, up, left, or down if the boundary allows it.
+```{python}
+#| echo: true
+
+root = Node(
+    state=S_state,
+    parent=None,
+    prev_movement=None,
+    movements=[],
+    level=0,
+    g_cost=0,
+    h_cost=h_manhattan(S_state, G_state)
+)
+
+print(root.key)      # 724506831
+print(root.f_cost)   # g + h
+```
+
+:::
+::::
+
+---
+
+## The A\* Algorithm
+
+:::: {.columns}
+::: {.column width="40%"}
+
+```{python}
+#| code-fold: true
+#| echo: true
+
+import heapq
+
+def a_star_search(start_state, goal_state, heuristic_fn):
+    """
+    A* search for the 8-puzzle.
+
+    Parameters:
+        start_state : 3x3 list
+        goal_state  : 3x3 list
+        heuristic_fn(state, goal_state) -> int
+
+    Returns:
+        goal_node if solved, otherwise None
+    """
+
+    start_h = heuristic_fn(start_state, goal_state)
+    start_node = Node(
+        state=start_state,
+        parent=None,
+        prev_movement=None,
+        movements=[],
+        level=0,
+        g_cost=0,
+        h_cost=start_h
+    )
+
+    # Priority queue entries: (f_cost, h_cost, key, node)
+    open_heap = []
+    heapq.heappush(open_heap, (start_node.f_cost, start_node.h_cost, start_node.key, start_node))
+
+    # # Best known g_cost for each state key
+    # best_g_cost = {start_node.key: 0}
+
+    # Closed set for already expanded states
+    closed_set = set()
+
+    while open_heap:
+        _, _, _, current_node = heapq.heappop(open_heap)
+
+        # Skip if already processed
+        if current_node.key in closed_set:
+            continue
+
+        # Goal test
+        if current_node.state == goal_state:
+            return current_node
+
+        closed_set.add(current_node.key)
+
+        possible_moves = check_movement(current_node.state)
+
+        for move in possible_moves:
+            if move == 0:
+                continue
+
+            child_state = change_state(current_node.state, move)
+            child_key = Node.state_to_key(child_state)
+
+            if child_key in closed_set:
+                continue
+
+            tentative_g = current_node.g_cost + 1
+            child_h = heuristic_fn(child_state, goal_state)
+
+            # # If this path is not better, skip it
+            # if child_key in best_g_cost and tentative_g >= best_g_cost[child_key]:
+            #     continue
+
+            # best_g_cost[child_key] = tentative_g
+
+            child_node = Node(
+                state=child_state,
+                parent=current_node,
+                prev_movement=move,
+                movements=current_node.movements + [move],
+                level=current_node.level + 1,
+                g_cost=tentative_g,
+                h_cost=child_h
+            )
+
+            current_node.immediate_children.append(child_node)
+            heapq.heappush(open_heap, (child_node.f_cost, child_node.h_cost, child_node.key, child_node))
+
+    return None
+```
+
+```python
+import heapq
+
+def a_star_search(start_state, goal_state, heuristic_fn):
+    """
+    A* search for the 8-puzzle.
+
+    Parameters:
+        start_state : 3x3 list
+        goal_state  : 3x3 list
+        heuristic_fn(state, goal_state) -> int
+
+    Returns:
+        goal_node if solved, otherwise None
+    """
+
+    # CODE HERE
+
+    # Priority queue entries: (f_cost, h_cost, key, node)
+    open_heap = []
+
+    # Closed set for already expanded states
+    closed_set = set()
+
+
+    return None
+```
+
+:::
+
+::: {.column width="30%"}
+::: {.callout-important}
+
+OPEN   ← priority queue, ordered by f(n) = g(n) + h(n)
+
+CLOSED ← set of already-expanded states
+
+1. Add start to OPEN with f = h(start)
+2. While OPEN is not empty:
+   a. Pop node n with lowest f from OPEN
+   b. If n is GOAL → return solution path
+   c. Add n to CLOSED
+   d. For each neighbour m of n:
+        new_g = g(n) + 1
+        If m not in CLOSED (or we found a cheaper path):
+            Push m onto OPEN with f = new_g + h(m)
+3. Return failure (no solution)
+
+
+`heapq` in Python implements a **min-heap** — `heappop` always returns the item with the **smallest** value, which is exactly the lowest-`f` node we want.
+:::
+:::
+
+
+
+::: {.column width="30%"}
+
+
+```{mermaid}
+flowchart TD
+    Start([Start]) --> Init[Add start to OPEN]
+    Init --> Loop{OPEN empty?}
+    
+    Loop -- Yes --> Fail([Return failure])
+    Loop -- No --> Pop[Pop node n with lowest f]
+    
+    Pop --> GoalCheck{Is n == GOAL?}
+    GoalCheck -- Yes --> Success([Return solution path])
+    
+    GoalCheck -- No --> Close[Add n to CLOSED]
+    Close --> Neighbors[Expand neighbors m of n]
+    
+    Neighbors --> Update[If m not in CLOSED or cheaper:<br>Push m to OPEN with f = new_g + h]
+    Update --> Loop
+```
+
+:::
+::::
+
+---
+
+## Results and Output
+
+```{python}
+#| echo: true
+#| output-location: column
+
+def reconstruct_path(goal_node):
+    path = []
+    node = goal_node
+
+    while node is not None:
+        path.append(node)
+        node = node.parent
+
+    return path[::-1]
+    
+result = a_star_search(S_state, G_state, h_manhattan)
+
+if result:
+    path = reconstruct_path(result)
+    print("Solved!")
+    print("Moves:", result.movements)
+    print("Number of moves:", result.level)
+else:
+    print("No solution found.")
+```
+
+---
+
+## Solution Path
+
+```{python}
+#| echo: true
+#| output-location: column
+
+direction_names = ["RIGHT", "UP", "LEFT", "DOWN"]
+
+for i in path:
+    if not i.movements:
+        print("\n Movement: START")
+    else:
+        last_move = direction_names[i.movements[-1] - 1]
+        print(f"\n Movement: {last_move}")
+        
+    display_board(i.state)
+```
+
+---
+
+## Tree Structure
+
+```{python}
+#| echo: true
+#| code-fold: true
+
+def print_tree(node, prefix="", is_last=True):
+
+    if prefix == "":
+        print(node.key)
+    else:
+        connector = "└── " if is_last else "├── "
+        print(prefix + connector + "L" + str(node.level) + " K:" + str(node.key))
+
+    child_count = len(node.immediate_children)
+
+    for i, child in enumerate(node.immediate_children):
+        last_child = (i == child_count - 1)
+
+        if prefix == "":
+            new_prefix = "    "
+        else:
+            new_prefix = prefix + ("    " if is_last else "│   ")
+
+        print_tree(child, new_prefix, last_child)
+
+root = result
+while root.parent is not None:
+    root = root.parent
+
+print_tree(root)
+```
+
+---
+
+## Thank you for your attention!
+
+:::: {.columns}
+::: {.column width="35%"}
+
+#### Code to follow:
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(8, 8))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+Code: [Assignemt 1 Code](https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing)
+
+:::
+::: {.column width="30%"}
+
+\
+
+#### If you have any questions, please feel free to reach out!
+
+* **Girban Vachyas**
+  * 📧 Email: **girban@iitg.ac.in**
+  * 📱 Phone: **+91 78966 73615**
+* **Hare Shankar Kumhar**
+  * 📧 Email: **harek@iitg.ac.in**
+  * 📱 Phone: **+91 99553 18876**
+
+**Supervised by:**
+
+* **Prof. Shyamanta M. Hazarika**
+  * 🏢 Dept. of Mechanical Engineering, IIT Guwahati
+  * 📧 Email: **s.m.hazarika@iitg.ac.in**
+
+\
+
+[🏠 Home](../index.qmd)
+
+:::
+::: {.column width="35%"}
+
+#### Presentation Link
+
+```{python}
+
+import qrcode
+import matplotlib.pyplot as plt
+
+# 1. Define the data you want to embed
+data = "https://colab.research.google.com/drive/1Mt6c7u62XEBvL0E7bUQewab2-aE4X-JT?usp=sharing"
+
+# 2. Configure the QR code properties
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(data)
+qr.make(fit=True)
+
+# 3. Create an image from the QR object
+img = qr.make_image(fill_color="black", back_color="white")
+
+# 4. Plot the image using Matplotlib
+plt.figure(figsize=(8, 8))
+plt.imshow(img, cmap="gray")
+plt.axis("off")  # Hide the axis ticks and grid lines
+plt.show()
+
+```
+
+:::
+::::
