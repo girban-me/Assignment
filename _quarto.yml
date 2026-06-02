@@ -1,5 +1,6 @@
 project:
   type: website
+  output-dir: docs  # Changes the output folder from _site to docs/
 
 website:
   title: "CEEE Assignments for Introduction to AI"

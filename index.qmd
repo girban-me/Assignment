@@ -17,12 +17,13 @@ The following are the links to Assignment:
 ## GitHub Repository
 
 ```{python}
+#| code-fold: true
 
 import qrcode
 import matplotlib.pyplot as plt
 
 # 1. Define the data you want to embed
-data = "https://colab.research.google.com/drive/10vnQPt4sooFWdkWvJ8_Tyf4qCWNjvqvu?usp=sharing"
+data = "https://github.com/girban-me/Assignment"
 
 # 2. Configure the QR code properties
 qr = qrcode.QRCode(
@@ -45,4 +46,4 @@ plt.show()
 
 ```
 
-Link : [GitHub Repository]()
+Link : [GitHub Repository](https://github.com/girban-me/Assignment)
