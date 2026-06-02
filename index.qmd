@@ -16,6 +16,8 @@ The following are the links to Assignment:
 
 ## GitHub Repository
 
+Link : [GitHub Repository](https://github.com/girban-me/Assignment)
+
 ```{python}
 #| code-fold: true
 
@@ -46,4 +48,3 @@ plt.show()
 
 ```
 
-Link : [GitHub Repository](https://github.com/girban-me/Assignment)
