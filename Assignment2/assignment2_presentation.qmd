@@ -16,7 +16,7 @@ jupyter: python3
 ---
 
 
-## Presented By
+## Assignment 2: Minimax and Alpha-Beta Pruning
 
 :::: {.columns}
 ::: {.column width="60%"}

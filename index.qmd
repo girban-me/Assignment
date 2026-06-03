@@ -48,3 +48,22 @@ plt.show()
 
 ```
 
+## Books
+
+## FAQ
+
+### Q: How to run the code for the assignments?
+
+![](assets/Screenshot_20260603_173251.png)
+
+You cannot modify the code directly in the above links.
+
+Press `Copy to Drive` to copy the code to your Google Drive. Then, you can open the code in Google Colab and run it there.
+
+### Q: How to submit the assignments?
+
+Submit code to `girban@iitg.ac.in`.
+
+Subject: Assignments CEEE
+
+Body: Your Name, Roll Number, Link or File.

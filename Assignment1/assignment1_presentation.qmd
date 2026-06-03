@@ -15,7 +15,7 @@ format:
 jupyter: python3
 ---
 
-## Presented By
+## Assignment 1: Heuristic Search with the 8-Puzzle
 
 :::: {.columns}
 ::: {.column width="60%"}
@@ -821,7 +821,7 @@ CLOSED ← set of already-expanded states
 3. Return failure (no solution)
 
 
-`heapq` in Python implements a **min-heap** — `heappop` always returns the item with the **smallest** value, which is exactly the lowest-`f` node we want.
+`heapq` in Python implements a **min-heap** - `heappop` always returns the item with the **smallest** value, which is exactly the lowest-`f` node we want. - `heappush` adds a new node to the heap while maintaining the heap property.
 :::
 :::
 
